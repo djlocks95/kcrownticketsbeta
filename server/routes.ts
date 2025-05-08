@@ -114,7 +114,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         customerName: z.string().nullable().optional(),
         price: z.number().min(0).optional(),
         customerPhone: z.string().nullable().optional(),
-        customerEmail: z.string().email().nullable().optional()
+        customerEmail: z.string().email().nullable().optional(),
+        agentName: z.string().nullable().optional(),
+        commissionPercent: z.number().min(0).max(100).optional()
       });
       
       const updates = schema.parse(req.body);

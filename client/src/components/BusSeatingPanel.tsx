@@ -76,24 +76,22 @@ export function BusSeatingPanel({ date, booking, summary, onSeatUpdate }: BusSea
 
             {/* Bus Seats */}
             <div className="grid grid-cols-5 gap-4">
-              {seatRows.map((row, rowIndex) => (
-                row.map((seat) => (
-                  <div 
-                    key={seat.id}
-                    onClick={() => handleSeatClick(seat)}
-                    className={cn(
-                      "seat text-white rounded-md p-2 text-center cursor-pointer flex flex-col justify-between h-24",
-                      getSeatStatusColor(seat),
-                      selectedSeat?.id === seat.id ? "seat-selected border-2 border-primary" : "",
-                    )}
-                  >
-                    <div className="text-xs font-medium">Seat {seat.id}</div>
-                    <div className="text-xs mb-1">
-                      {seat.customerName || "Available"}
-                    </div>
-                    <div className="text-sm font-bold">${seat.price}</div>
+              {booking.seats.map((seat) => (
+                <div 
+                  key={seat.id}
+                  onClick={() => handleSeatClick(seat)}
+                  className={cn(
+                    "seat text-white rounded-md p-2 text-center cursor-pointer flex flex-col justify-between h-24",
+                    getSeatStatusColor(seat),
+                    selectedSeat?.id === seat.id ? "seat-selected border-2 border-primary" : "",
+                  )}
+                >
+                  <div className="text-xs font-medium">Seat {seat.id}</div>
+                  <div className="text-xs mb-1">
+                    {seat.customerName || "Available"}
                   </div>
-                ))
+                  <div className="text-sm font-bold">${seat.price}</div>
+                </div>
               ))}
             </div>
           </div>

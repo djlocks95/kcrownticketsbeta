@@ -10,6 +10,8 @@ export const seats = pgTable("seats", {
   customerName: text("customer_name"),
   customerPhone: text("customer_phone"),
   customerEmail: text("customer_email"),
+  agentName: text("agent_name"),
+  commissionPercent: real("commission_percent").default(10),
 });
 
 // Booking model
@@ -42,6 +44,9 @@ export type BookingSummary = {
   bookedSeats: number;
   availableSeats: number;
   totalRevenue: number;
+  totalCommission: number;
+  netRevenue: number;
   averagePrice: number;
   occupancyRate: number;
+  commissionsByAgent: Record<string, number>;
 };

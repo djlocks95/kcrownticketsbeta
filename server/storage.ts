@@ -65,7 +65,9 @@ export class MemStorage implements IStorage {
         price: getDefaultSeatPrice(i),
         customerName: null,
         customerPhone: null,
-        customerEmail: null
+        customerEmail: null,
+        agentName: null,
+        commissionPercent: 10
       };
       
       this.seats.set(seatId, seat);
