@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,15 @@ import {
   FormLabel 
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Seat } from "@shared/schema";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { apiRequest } from "@/lib/queryClient";
+import { Seat, Employee } from "@shared/schema";
 
 interface SeatBookingFormProps {
   seat: Seat;
@@ -25,6 +34,7 @@ const formSchema = z.object({
   price: z.coerce.number().min(0, "Price must be at least $0"),
   customerPhone: z.string().optional(),
   customerEmail: z.string().email({ message: "Invalid email address" }).optional().or(z.literal("")),
+  employeeId: z.string().optional(),
   agentName: z.string().optional(),
   commissionPercent: z.coerce.number().min(0, "Commission must be at least 0%").max(100, "Commission must be at most 100%").default(10),
 });
@@ -32,6 +42,12 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormProps) {
+  // Get employees for dropdown
+  const { data: employees = [] } = useQuery({
+    queryKey: ["/api/employees"],
+    queryFn: () => apiRequest<Employee[]>("/api/employees")
+  });
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,6 +55,7 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       price: seat.price,
       customerPhone: seat.customerPhone || "",
       customerEmail: seat.customerEmail || "",
+      employeeId: seat.employeeId ? String(seat.employeeId) : undefined,
       agentName: seat.agentName || "",
       commissionPercent: seat.commissionPercent || 10,
     }
@@ -51,20 +68,37 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       price: seat.price,
       customerPhone: seat.customerPhone || "",
       customerEmail: seat.customerEmail || "",
+      employeeId: seat.employeeId ? String(seat.employeeId) : undefined,
       agentName: seat.agentName || "",
       commissionPercent: seat.commissionPercent || 10,
     });
   }, [seat.id, form.reset, seat]);
   
   const handleSubmit = (values: FormValues) => {
-    onUpdate({
+    // If employeeId is selected, find the employee to set commission rate and name
+    let updates: Partial<Seat> = {
       customerName: values.customerName || null,
       price: values.price,
       customerPhone: values.customerPhone || null,
       customerEmail: values.customerEmail || null,
+      employeeId: values.employeeId ? parseInt(values.employeeId) : null,
       agentName: values.agentName || null,
       commissionPercent: values.commissionPercent,
-    });
+    };
+    
+    // If employee is selected, use their information for agent name and commission
+    if (values.employeeId) {
+      const selectedEmployee = employees.find(
+        (emp) => emp.id === parseInt(values.employeeId)
+      );
+      
+      if (selectedEmployee) {
+        updates.agentName = selectedEmployee.name;
+        updates.commissionPercent = selectedEmployee.commissionPercent;
+      }
+    }
+    
+    onUpdate(updates);
   };
   
   const handleCancelBooking = () => {

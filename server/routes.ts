@@ -115,6 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         price: z.number().min(0).optional(),
         customerPhone: z.string().nullable().optional(),
         customerEmail: z.string().email().nullable().optional(),
+        employeeId: z.number().nullable().optional(),
         agentName: z.string().nullable().optional(),
         commissionPercent: z.number().min(0).max(100).optional()
       });
@@ -138,9 +139,110 @@ export async function registerRoutes(app: Express): Promise<Server> {
       handleErrors(err, res);
     }
   });
-  
 
+  // GET monthly profit
+  app.get(`${API_PREFIX}/profit/:year/:month`, async (req: Request, res: Response) => {
+    try {
+      const { year, month } = req.params;
+      const yearNum = parseInt(year, 10);
+      const monthNum = parseInt(month, 10);
+      
+      if (isNaN(yearNum) || isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
+        return res.status(400).json({ message: "Invalid year or month" });
+      }
+      
+      const profit = await storage.getMonthlyProfit(monthNum, yearNum);
+      res.json(profit);
+    } catch (err) {
+      handleErrors(err, res);
+    }
+  });
   
+  // EMPLOYEE ENDPOINTS
+  
+  // GET all employees
+  app.get(`${API_PREFIX}/employees`, async (_req: Request, res: Response) => {
+    try {
+      const employees = await storage.getEmployees();
+      res.json(employees);
+    } catch (err) {
+      handleErrors(err, res);
+    }
+  });
+  
+  // GET employee by ID
+  app.get(`${API_PREFIX}/employees/:id`, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid employee ID" });
+      }
+      
+      const employee = await storage.getEmployeeById(id);
+      
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      res.json(employee);
+    } catch (err) {
+      handleErrors(err, res);
+    }
+  });
+  
+  // CREATE new employee
+  app.post(`${API_PREFIX}/employees`, async (req: Request, res: Response) => {
+    try {
+      const schema = z.object({
+        name: z.string().min(1, "Name is required"),
+        email: z.string().email().nullable().optional(),
+        phone: z.string().nullable().optional(),
+        role: z.string().default("agent"),
+        commissionPercent: z.number().min(0).max(100).default(10),
+        active: z.number().default(1)
+      });
+      
+      const employee = schema.parse(req.body);
+      const newEmployee = await storage.createEmployee(employee);
+      res.status(201).json(newEmployee);
+    } catch (err) {
+      handleErrors(err, res);
+    }
+  });
+  
+  // UPDATE employee
+  app.patch(`${API_PREFIX}/employees/:id`, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid employee ID" });
+      }
+      
+      const employee = await storage.getEmployeeById(id);
+      
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      
+      const schema = z.object({
+        name: z.string().min(1).optional(),
+        email: z.string().email().nullable().optional(),
+        phone: z.string().nullable().optional(),
+        role: z.string().optional(),
+        commissionPercent: z.number().min(0).max(100).optional(),
+        active: z.number().optional()
+      });
+      
+      const updates = schema.parse(req.body);
+      const updatedEmployee = await storage.updateEmployee(id, updates);
+      res.json(updatedEmployee);
+    } catch (err) {
+      handleErrors(err, res);
+    }
+  });
+
   // Create and return HTTP server
   const httpServer = createServer(app);
   return httpServer;
