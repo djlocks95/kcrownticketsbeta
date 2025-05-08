@@ -46,7 +46,9 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
   const { data: employees = [] } = useQuery({
     queryKey: ["/api/employees"],
     queryFn: async () => {
-      const response = await apiRequest("/api/employees");
+      const response = await apiRequest("/api/employees", {
+        method: "GET"
+      });
       return response as Employee[];
     }
   });

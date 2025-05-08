@@ -37,7 +37,9 @@ export default function EmployeeManager() {
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
     queryKey: ["/api/employees"],
     queryFn: async () => {
-      const response = await apiRequest("/api/employees");
+      const response = await apiRequest("/api/employees", {
+        method: "GET"
+      });
       return response as Employee[];
     }
   });
@@ -46,7 +48,9 @@ export default function EmployeeManager() {
   const { data: profitData, isLoading: isLoadingProfit } = useQuery({
     queryKey: ["/api/profit", currentYear, currentMonth],
     queryFn: async () => {
-      const response = await apiRequest(`/api/profit/${currentYear}/${currentMonth}`);
+      const response = await apiRequest(`/api/profit/${currentYear}/${currentMonth}`, {
+        method: "GET"
+      });
       return response as {
         month: string;
         year: number;
