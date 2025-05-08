@@ -208,7 +208,12 @@ export class MemStorage implements IStorage {
     
     const newEmployee: Employee = {
       id,
-      ...employee,
+      name: employee.name,
+      email: employee.email || null,
+      phone: employee.phone || null,
+      role: employee.role || null,
+      commissionPercent: employee.commissionPercent || null,
+      active: employee.active || null
     };
     
     this.employees.set(id, newEmployee);

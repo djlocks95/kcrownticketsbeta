@@ -107,6 +107,7 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
         customerName: null,
         customerPhone: null,
         customerEmail: null,
+        employeeId: null,
         agentName: null,
       });
     }
@@ -119,6 +120,7 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       price: seat.price,
       customerPhone: seat.customerPhone || "",
       customerEmail: seat.customerEmail || "",
+      employeeId: seat.employeeId ? String(seat.employeeId) : undefined,
       agentName: seat.agentName || "",
       commissionPercent: seat.commissionPercent || 10,
     });
@@ -185,12 +187,40 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
             
             <FormField
               control={form.control}
+              name="employeeId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Select Employee</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an employee" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">No employee selected</SelectItem>
+                      {employees.map((employee) => (
+                        <SelectItem key={employee.id} value={String(employee.id)}>
+                          {employee.name} ({employee.commissionPercent}%)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
               name="agentName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sales Agent (optional)</FormLabel>
+                  <FormLabel>Sales Agent (manual entry)</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Agent name" />
+                    <Input {...field} placeholder="Or enter agent name manually" />
                   </FormControl>
                 </FormItem>
               )}
