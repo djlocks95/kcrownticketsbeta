@@ -48,7 +48,21 @@ npm install
 
 5. Start the application:
 
+**For Windows Users:**
 ```bash
+# Either use the included batch file
+start-windows.bat
+
+# Or run directly with this command
+set NODE_ENV=development && npx tsx server/index.ts
+```
+
+**For Mac/Linux Users:**
+```bash
+# Either use the included shell script
+bash start-unix.sh
+
+# Or run directly with this command
 npm run dev
 ```
 
@@ -69,9 +83,23 @@ cd party-bus-booking-manager
 npm install
 ```
 
-3. Start the development server:
+3. Start the application:
 
+**For Windows Users:**
 ```bash
+# Either use the included batch file
+start-windows.bat
+
+# Or run directly with this command
+set NODE_ENV=development && npx tsx server/index.ts
+```
+
+**For Mac/Linux Users:**
+```bash
+# Either use the included shell script
+bash start-unix.sh
+
+# Or run directly with this command
 npm run dev
 ```
 
@@ -128,6 +156,12 @@ npm run build
 
 Then run the production server:
 
+**For Windows Users:**
+```bash
+set NODE_ENV=production && node dist/index.js
+```
+
+**For Mac/Linux Users:**
 ```bash
 npm start
 ```

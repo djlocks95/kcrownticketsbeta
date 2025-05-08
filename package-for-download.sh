@@ -1,26 +1,35 @@
 #!/bin/bash
 
-# Create a temporary directory
-mkdir -p temp_download
+# Package files for download for local installation
+echo "Creating downloadable package for Party Bus Booking Manager..."
 
-# Copy all required files
-cp -r client temp_download/
-cp -r server temp_download/
-cp -r shared temp_download/
-cp components.json temp_download/
-cp drizzle.config.ts temp_download/
-cp package.json temp_download/
-cp package-lock.json temp_download/
-cp postcss.config.js temp_download/
-cp tailwind.config.ts temp_download/
-cp tsconfig.json temp_download/
-cp vite.config.ts temp_download/
-cp README.md temp_download/
+# Create temp directory
+mkdir -p temp_package
 
-# Create a zip file
-zip -r party-bus-booking-manager.zip temp_download
+# Copy necessary files and folders
+cp -r client temp_package/
+cp -r server temp_package/
+cp -r shared temp_package/
+cp package.json temp_package/
+cp package-lock.json temp_package/
+cp README.md temp_package/
+cp start-unix.sh temp_package/
+cp start-windows.bat temp_package/
+cp -r components.json temp_package/
+cp -r drizzle.config.ts temp_package/
+cp -r postcss.config.js temp_package/
+cp -r tailwind.config.ts temp_package/
+cp -r tsconfig.json temp_package/
+cp -r vite.config.ts temp_package/
+
+# Make start scripts executable
+chmod +x temp_package/start-unix.sh
+
+# Zip the package
+zip -r party-bus-booking-manager.zip temp_package
 
 # Clean up
-rm -rf temp_download
+rm -rf temp_package
 
-echo "Created party-bus-booking-manager.zip ready for download"
+echo "Package created: party-bus-booking-manager.zip"
+echo "Distribute this ZIP file to users for local installation."
