@@ -32,6 +32,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // GET upcoming bookings (must be before /:date to avoid conflict)
+  app.get(`${API_PREFIX}/bookings/upcoming`, async (_req: Request, res: Response) => {
+    try {
+      const upcomingBookings = await storage.getUpcomingBookings();
+      res.json(upcomingBookings);
+    } catch (err) {
+      handleErrors(err, res);
+    }
+  });
+  
   // GET booking by date
   app.get(`${API_PREFIX}/bookings/:date`, async (req: Request, res: Response) => {
     try {
@@ -127,15 +137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // GET upcoming bookings
-  app.get(`${API_PREFIX}/bookings/upcoming`, async (_req: Request, res: Response) => {
-    try {
-      const upcomingBookings = await storage.getUpcomingBookings();
-      res.json(upcomingBookings);
-    } catch (err) {
-      handleErrors(err, res);
-    }
-  });
+
   
   // Create and return HTTP server
   const httpServer = createServer(app);
