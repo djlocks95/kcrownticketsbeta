@@ -87,7 +87,7 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       agentName: values.agentName || null,
     };
     
-    // If employee is selected, use their information for agent name and commission
+    // If employee is selected, use their information for agent name only
     if (values.employeeId && values.employeeId !== "none" && Array.isArray(employees)) {
       const selectedEmployee = employees.find(
         (emp: any) => emp.id === parseInt(values.employeeId || "0")
@@ -95,10 +95,6 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       
       if (selectedEmployee) {
         updates.agentName = selectedEmployee.name;
-        // Still set the commission from the employee, but it's not part of the form
-        if (selectedEmployee.commissionPercent) {
-          updates.commissionPercent = selectedEmployee.commissionPercent;
-        }
       }
     }
     

@@ -23,10 +23,38 @@ A seat booking management system for party buses with an interactive calendar an
 
 ### Prerequisites
 
-- Node.js 20.x or later
-- npm 10.x or later
+- Node.js 18.x or later
+- npm 9.x or later
 
 ### Installation
+
+#### Option 1: Download and Run Locally
+
+1. Download the ZIP file from the provided link
+
+2. Extract the ZIP file to a folder on your computer
+
+3. Open a terminal/command prompt and navigate to the extracted folder:
+
+```bash
+cd path/to/extracted/folder
+```
+
+4. Install dependencies:
+
+```bash
+npm install
+```
+
+5. Start the application:
+
+```bash
+npm run dev
+```
+
+6. Open your browser to `http://localhost:5000`
+
+#### Option 2: Clone the Repository
 
 1. Clone the repository:
 
@@ -75,12 +103,20 @@ npm run dev
 ## Using the Application
 
 1. **Dashboard**: View overview statistics of all bookings
+
 2. **Booking Manager**: 
    - Use the interactive calendar to select dates
    - Click on seats to view/edit details
-   - Enter customer information, seat pricing, and agent details
-   - Set commission percentages for sales tracking
-   - View booking summary with revenue and commission calculations
+   - Enter customer information, seat pricing, and assign employees to bookings
+   - View booking summary with revenue calculations
+
+3. **Employee Manager**:
+   - Add and manage employees who receive commissions
+   - Set commission percentages for each employee
+   - View monthly profit reports
+   - Commission is calculated based on the total monthly profit, not individual sales
+   
+For example, if a month generates $5,000 in profit and an employee has a 10% commission rate, they would receive $500 as commission from the total profit.
 
 ## Production Deployment
 

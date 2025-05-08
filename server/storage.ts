@@ -241,7 +241,7 @@ export class MemStorage implements IStorage {
   // Get monthly profit
   async getMonthlyProfit(month: number, year: number): Promise<MonthlyProfit> {
     const bookings = Array.from(this.bookings.values());
-    const employees = Array.from(this.employees.values());
+    const employees = Array.from(this.employees.values()).filter(emp => emp.active);
     
     // Filter bookings for the specified month and year
     const monthlyBookings = bookings.filter(booking => {
@@ -252,32 +252,35 @@ export class MemStorage implements IStorage {
     let totalRevenue = 0;
     const totalExpenses = 0; // Could be expanded to include operational costs
     
-    // Calculate total revenue
-    monthlyBookings.forEach(booking => {
-      const bookedSeats = booking.seats.filter(seat => seat.customerName !== null);
-      
-      // Add to total revenue
-      totalRevenue += bookedSeats.reduce((sum, seat) => sum + seat.price, 0);
-    });
+    // Calculate total revenue in one pass
+    totalRevenue = monthlyBookings.reduce((revenue, booking) => {
+      const bookedSeatsRevenue = booking.seats
+        .filter(seat => seat.customerName !== null)
+        .reduce((seatSum, seat) => seatSum + seat.price, 0);
+      return revenue + bookedSeatsRevenue;
+    }, 0);
     
     // Calculate net profit (before commissions)
     const netProfit = totalRevenue - totalExpenses;
     
     // Calculate commissions based on employee commission rates and total profit
     const commissions: Record<string, number> = {};
+    let totalCommissionAmount = 0;
     
     // Only allocate commissions if there's profit
     if (netProfit > 0) {
       employees
-        .filter(emp => emp.active && emp.commissionPercent !== null)
+        .filter(emp => emp.commissionPercent !== null && emp.commissionPercent > 0)
         .forEach(employee => {
+          // Calculate commission as percentage of monthly profit
           const commissionAmount = (netProfit * (employee.commissionPercent || 0)) / 100;
-          commissions[employee.name] = commissionAmount;
+          commissions[employee.name] = parseFloat(commissionAmount.toFixed(2)); // Round to 2 decimal places
+          totalCommissionAmount += commissionAmount;
         });
     }
     
     // Calculate final profit after commissions
-    const profit = netProfit - Object.values(commissions).reduce((sum, commission) => sum + commission, 0);
+    const profit = netProfit - totalCommissionAmount;
     
     // Format month name
     const monthNames = [
