@@ -36,7 +36,6 @@ const formSchema = z.object({
   customerEmail: z.string().email({ message: "Invalid email address" }).optional().or(z.literal("")),
   employeeId: z.string().optional(),
   agentName: z.string().optional(),
-  commissionPercent: z.coerce.number().min(0, "Commission must be at least 0%").max(100, "Commission must be at most 100%").default(10),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -62,7 +61,6 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       customerEmail: seat.customerEmail || "",
       employeeId: seat.employeeId ? String(seat.employeeId) : undefined,
       agentName: seat.agentName || "",
-      commissionPercent: seat.commissionPercent || 10,
     }
   });
   
@@ -75,7 +73,6 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       customerEmail: seat.customerEmail || "",
       employeeId: seat.employeeId ? String(seat.employeeId) : undefined,
       agentName: seat.agentName || "",
-      commissionPercent: seat.commissionPercent || 10,
     });
   }, [seat.id, form.reset, seat]);
   
@@ -88,7 +85,6 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       customerEmail: values.customerEmail || null,
       employeeId: values.employeeId ? parseInt(values.employeeId) : null,
       agentName: values.agentName || null,
-      commissionPercent: values.commissionPercent,
     };
     
     // If employee is selected, use their information for agent name and commission
@@ -99,7 +95,10 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       
       if (selectedEmployee) {
         updates.agentName = selectedEmployee.name;
-        updates.commissionPercent = selectedEmployee.commissionPercent;
+        // Still set the commission from the employee, but it's not part of the form
+        if (selectedEmployee.commissionPercent) {
+          updates.commissionPercent = selectedEmployee.commissionPercent;
+        }
       }
     }
     
@@ -127,7 +126,6 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       customerEmail: seat.customerEmail || "",
       employeeId: seat.employeeId ? String(seat.employeeId) : undefined,
       agentName: seat.agentName || "",
-      commissionPercent: seat.commissionPercent || 10,
     });
   };
   
@@ -230,19 +228,7 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
                 </FormItem>
               )}
             />
-            
-            <FormField
-              control={form.control}
-              name="commissionPercent"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Commission (%)</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="number" min={0} max={100} step={1} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+
           </div>
           
           <div className="flex justify-between items-center pt-2">
