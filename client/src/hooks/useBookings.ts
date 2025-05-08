@@ -66,8 +66,11 @@ export function useBookings() {
         bookedSeats: 0,
         availableSeats: 35,
         totalRevenue: 0,
+        totalCommission: 0,
+        netRevenue: 0,
         averagePrice: 0,
-        occupancyRate: 0
+        occupancyRate: 0,
+        commissionsByAgent: {}
       };
     }
     
@@ -79,6 +82,24 @@ export function useBookings() {
     const totalRevenue = booking.seats
       .filter(seat => seat.customerName)
       .reduce((sum, seat) => sum + seat.price, 0);
+    
+    // Calculate commissions
+    let totalCommission = 0;
+    const commissionsByAgent: Record<string, number> = {};
+    
+    booking.seats
+      .filter(seat => seat.customerName && seat.agentName)
+      .forEach(seat => {
+        const commission = (seat.price * (seat.commissionPercent || 0)) / 100;
+        totalCommission += commission;
+        
+        // Add to agent commissions
+        const agentName = seat.agentName || 'Unknown';
+        commissionsByAgent[agentName] = (commissionsByAgent[agentName] || 0) + commission;
+      });
+    
+    // Calculate net revenue (after commissions)
+    const netRevenue = totalRevenue - totalCommission;
     
     // Calculate average price of booked seats
     const averagePrice = bookedSeats > 0 ? totalRevenue / bookedSeats : 0;
@@ -93,8 +114,11 @@ export function useBookings() {
       bookedSeats,
       availableSeats,
       totalRevenue,
+      totalCommission,
+      netRevenue,
       averagePrice,
-      occupancyRate
+      occupancyRate,
+      commissionsByAgent
     };
   };
   

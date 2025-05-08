@@ -20,6 +20,9 @@ export function BookingSummary({ summary }: BookingSummaryProps) {
     if (occupancyRate < 1) return "Partially Booked";
     return "Fully Booked";
   };
+
+  // Check if there are any agent commissions
+  const hasCommissions = Object.keys(summary.commissionsByAgent).length > 0;
   
   return (
     <Card className="border border-neutral-200">
@@ -41,12 +44,32 @@ export function BookingSummary({ summary }: BookingSummaryProps) {
           <dt className="text-neutral-500">Average Price</dt>
           <dd className="text-neutral-900 font-medium">${summary.averagePrice.toFixed(2)}</dd>
           
-          <dt className="text-neutral-500">Total Revenue</dt>
-          <dd className="text-neutral-900 font-medium text-primary">${summary.totalRevenue.toFixed(2)}</dd>
+          <dt className="text-neutral-500">Gross Revenue</dt>
+          <dd className="text-neutral-900 font-medium">${summary.totalRevenue.toFixed(2)}</dd>
+          
+          <dt className="text-neutral-500">Total Commissions</dt>
+          <dd className="text-neutral-900 font-medium text-warning">${summary.totalCommission.toFixed(2)}</dd>
+          
+          <dt className="text-neutral-500">Net Revenue</dt>
+          <dd className="text-neutral-900 font-medium text-primary">${summary.netRevenue.toFixed(2)}</dd>
           
           <dt className="text-neutral-500">Occupancy</dt>
           <dd className="text-neutral-900 font-medium">{summary.occupancyRate.toFixed(1)}%</dd>
         </dl>
+        
+        {hasCommissions && (
+          <div className="mt-4 pt-4 border-t border-neutral-200">
+            <h4 className="font-medium text-neutral-900 mb-2">Agent Commissions</h4>
+            <div className="space-y-1 text-sm">
+              {Object.entries(summary.commissionsByAgent).map(([agent, amount]) => (
+                <div key={agent} className="flex justify-between">
+                  <span className="text-neutral-700">{agent}</span>
+                  <span className="text-neutral-900 font-medium">${amount.toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         
         <div className="mt-4 pt-4 border-t border-neutral-200">
           <div className="flex justify-between items-center">

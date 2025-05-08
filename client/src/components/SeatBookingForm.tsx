@@ -25,6 +25,8 @@ const formSchema = z.object({
   price: z.coerce.number().min(0, "Price must be at least $0"),
   customerPhone: z.string().optional(),
   customerEmail: z.string().email({ message: "Invalid email address" }).optional().or(z.literal("")),
+  agentName: z.string().optional(),
+  commissionPercent: z.coerce.number().min(0, "Commission must be at least 0%").max(100, "Commission must be at most 100%").default(10),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -37,6 +39,8 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       price: seat.price,
       customerPhone: seat.customerPhone || "",
       customerEmail: seat.customerEmail || "",
+      agentName: seat.agentName || "",
+      commissionPercent: seat.commissionPercent || 10,
     }
   });
   
@@ -47,6 +51,8 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       price: seat.price,
       customerPhone: seat.customerPhone || "",
       customerEmail: seat.customerEmail || "",
+      agentName: seat.agentName || "",
+      commissionPercent: seat.commissionPercent || 10,
     });
   }, [seat.id, form.reset, seat]);
   
@@ -56,6 +62,8 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       price: values.price,
       customerPhone: values.customerPhone || null,
       customerEmail: values.customerEmail || null,
+      agentName: values.agentName || null,
+      commissionPercent: values.commissionPercent,
     });
   };
   
@@ -65,6 +73,7 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
         customerName: null,
         customerPhone: null,
         customerEmail: null,
+        agentName: null,
       });
     }
     onCancel();
@@ -76,6 +85,8 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
       price: seat.price,
       customerPhone: seat.customerPhone || "",
       customerEmail: seat.customerEmail || "",
+      agentName: seat.agentName || "",
+      commissionPercent: seat.commissionPercent || 10,
     });
   };
   
@@ -133,6 +144,32 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
                   <FormLabel>Email (optional)</FormLabel>
                   <FormControl>
                     <Input {...field} type="email" placeholder="customer@example.com" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="agentName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sales Agent (optional)</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Agent name" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="commissionPercent"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Commission (%)</FormLabel>
+                  <FormControl>
+                    <Input {...field} type="number" min={0} max={100} step={1} />
                   </FormControl>
                 </FormItem>
               )}
