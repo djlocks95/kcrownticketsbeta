@@ -2,6 +2,17 @@ import { pgTable, text, serial, integer, timestamp, real } from "drizzle-orm/pg-
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Employee model
+export const employees = pgTable("employees", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email"),
+  phone: text("phone"),
+  role: text("role").default("agent"),
+  commissionPercent: real("commission_percent").default(10),
+  active: integer("active").default(1),
+});
+
 // Seat model
 export const seats = pgTable("seats", {
   id: serial("id").primaryKey(),
@@ -10,6 +21,7 @@ export const seats = pgTable("seats", {
   customerName: text("customer_name"),
   customerPhone: text("customer_phone"),
   customerEmail: text("customer_email"),
+  employeeId: integer("employee_id"),
   agentName: text("agent_name"),
   commissionPercent: real("commission_percent").default(10),
 });
@@ -23,10 +35,13 @@ export const bookings = pgTable("bookings", {
 // Insert schemas
 export const insertSeatSchema = createInsertSchema(seats).omit({ id: true });
 export const insertBookingSchema = createInsertSchema(bookings).omit({ id: true });
+export const insertEmployeeSchema = createInsertSchema(employees).omit({ id: true });
 
 // Types
 export type Seat = typeof seats.$inferSelect;
 export type InsertSeat = z.infer<typeof insertSeatSchema>;
+export type Employee = typeof employees.$inferSelect;
+export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
 
 export type Booking = {
   id: number;
@@ -35,6 +50,16 @@ export type Booking = {
 };
 
 export type InsertBooking = z.infer<typeof insertBookingSchema>;
+
+// Monthly profit type
+export type MonthlyProfit = {
+  month: string;
+  year: number;
+  totalRevenue: number;
+  totalExpenses: number;
+  profit: number;
+  commissions: Record<string, number>;
+};
 
 // Booking summary type
 export type BookingSummary = {

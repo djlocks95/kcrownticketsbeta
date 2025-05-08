@@ -1,14 +1,31 @@
-import { bookings, type Booking, type InsertBooking, type Seat } from "@shared/schema";
+import { 
+  bookings, 
+  type Booking, 
+  type InsertBooking, 
+  type Seat, 
+  type Employee, 
+  type InsertEmployee,
+  type MonthlyProfit
+} from "@shared/schema";
 import { getDefaultSeatPrice } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, getMonth, getYear } from "date-fns";
 
 // Define interface for storage operations
 export interface IStorage {
+  // Booking operations
   getBookings(): Promise<Booking[]>;
   getBookingById(id: number): Promise<Booking | undefined>;
   getBookingByDate(date: string): Promise<Booking | undefined>;
   createBooking(booking: InsertBooking): Promise<Booking>;
   updateSeat(bookingId: number, seatId: number, updates: Partial<Seat>): Promise<Seat>;
+  
+  // Employee operations
+  getEmployees(): Promise<Employee[]>;
+  getEmployeeById(id: number): Promise<Employee | undefined>;
+  createEmployee(employee: InsertEmployee): Promise<Employee>;
+  updateEmployee(id: number, updates: Partial<Employee>): Promise<Employee>;
+  
+  // Statistics operations
   getStats(): Promise<{
     totalBookings: number;
     totalCustomers: number;
@@ -16,20 +33,25 @@ export interface IStorage {
     averageOccupancy: number;
   }>;
   getUpcomingBookings(): Promise<any[]>;
+  getMonthlyProfit(month: number, year: number): Promise<MonthlyProfit>;
 }
 
 // Memory storage implementation
 export class MemStorage implements IStorage {
   private bookings: Map<number, Booking>;
   private seats: Map<number, Seat>;
+  private employees: Map<number, Employee>;
   currentBookingId: number;
   currentSeatId: number;
+  currentEmployeeId: number;
 
   constructor() {
     this.bookings = new Map();
     this.seats = new Map();
+    this.employees = new Map();
     this.currentBookingId = 1;
     this.currentSeatId = 1;
+    this.currentEmployeeId = 1;
   }
 
   // Get all bookings
@@ -66,6 +88,7 @@ export class MemStorage implements IStorage {
         customerName: null,
         customerPhone: null,
         customerEmail: null,
+        employeeId: null,
         agentName: null,
         commissionPercent: 10
       };
@@ -169,6 +192,97 @@ export class MemStorage implements IStorage {
           revenue
         };
       });
+  }
+  
+  // Employee management methods
+  async getEmployees(): Promise<Employee[]> {
+    return Array.from(this.employees.values());
+  }
+  
+  async getEmployeeById(id: number): Promise<Employee | undefined> {
+    return this.employees.get(id);
+  }
+  
+  async createEmployee(employee: InsertEmployee): Promise<Employee> {
+    const id = this.currentEmployeeId++;
+    
+    const newEmployee: Employee = {
+      id,
+      ...employee,
+    };
+    
+    this.employees.set(id, newEmployee);
+    return newEmployee;
+  }
+  
+  async updateEmployee(id: number, updates: Partial<Employee>): Promise<Employee> {
+    const employee = this.employees.get(id);
+    if (!employee) {
+      throw new Error(`Employee with ID ${id} not found`);
+    }
+    
+    const updatedEmployee = {
+      ...employee,
+      ...updates,
+    };
+    
+    this.employees.set(id, updatedEmployee);
+    return updatedEmployee;
+  }
+  
+  // Get monthly profit
+  async getMonthlyProfit(month: number, year: number): Promise<MonthlyProfit> {
+    const bookings = Array.from(this.bookings.values());
+    
+    // Filter bookings for the specified month and year
+    const monthlyBookings = bookings.filter(booking => {
+      const bookingDate = new Date(booking.date);
+      return getMonth(bookingDate) === month - 1 && getYear(bookingDate) === year;
+    });
+    
+    let totalRevenue = 0;
+    const totalExpenses = 0; // Could be expanded to include operational costs
+    const commissions: Record<string, number> = {};
+    
+    // Calculate total revenue and commissions by employee
+    monthlyBookings.forEach(booking => {
+      const bookedSeats = booking.seats.filter(seat => seat.customerName !== null);
+      
+      // Add to total revenue
+      totalRevenue += bookedSeats.reduce((sum, seat) => sum + seat.price, 0);
+      
+      // Calculate commissions
+      bookedSeats.forEach(seat => {
+        if (seat.agentName) {
+          const commission = (seat.price * (seat.commissionPercent || 0)) / 100;
+          
+          if (!commissions[seat.agentName]) {
+            commissions[seat.agentName] = 0;
+          }
+          
+          commissions[seat.agentName] += commission;
+        }
+      });
+    });
+    
+    // Calculate net profit
+    const profit = totalRevenue - totalExpenses - Object.values(commissions).reduce((sum, commission) => sum + commission, 0);
+    
+    // Format month name
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const monthName = monthNames[month - 1];
+    
+    return {
+      month: monthName,
+      year,
+      totalRevenue,
+      totalExpenses,
+      profit,
+      commissions
+    };
   }
 }
 
