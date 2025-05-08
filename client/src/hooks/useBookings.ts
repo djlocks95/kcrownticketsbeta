@@ -13,8 +13,11 @@ export function useBookings() {
   // Create a new booking for a date
   const createBookingMutation = useMutation({
     mutationFn: async (date: Date) => {
-      const response = await apiRequest('POST', '/api/bookings', { date: date.toISOString() });
-      return response.json();
+      return await apiRequest('/api/bookings', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: date.toISOString() })
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
@@ -26,8 +29,11 @@ export function useBookings() {
   // Update a seat in a booking
   const updateSeatMutation = useMutation({
     mutationFn: async ({ date, seatId, updates }: { date: Date, seatId: number, updates: Partial<Seat> }) => {
-      const response = await apiRequest('PATCH', `/api/bookings/${format(date, 'yyyy-MM-dd')}/seats/${seatId}`, updates);
-      return response.json();
+      return await apiRequest(`/api/bookings/${format(date, 'yyyy-MM-dd')}/seats/${seatId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/bookings'] });
