@@ -50,11 +50,11 @@ npm install
 
 **For Windows Users:**
 ```bash
-# Either use the included batch file
-start-windows.bat
+# First time setup (only needed once)
+setup-windows.bat
 
-# Or run directly with this command
-set NODE_ENV=development && npx tsx server/index.ts
+# Then run the application with
+start-windows.bat
 ```
 
 **For Mac/Linux Users:**
@@ -87,11 +87,11 @@ npm install
 
 **For Windows Users:**
 ```bash
-# Either use the included batch file
-start-windows.bat
+# First time setup (only needed once)
+setup-windows.bat
 
-# Or run directly with this command
-set NODE_ENV=development && npx tsx server/index.ts
+# Then run the application with
+start-windows.bat
 ```
 
 **For Mac/Linux Users:**

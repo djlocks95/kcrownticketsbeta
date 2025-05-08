@@ -15,6 +15,7 @@ cp package-lock.json temp_package/
 cp README.md temp_package/
 cp start-unix.sh temp_package/
 cp start-windows.bat temp_package/
+cp setup-windows.bat temp_package/
 cp -r components.json temp_package/
 cp -r drizzle.config.ts temp_package/
 cp -r postcss.config.js temp_package/
