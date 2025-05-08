@@ -51,10 +51,13 @@ npm install
 **For Windows Users:**
 ```bash
 # First time setup (only needed once)
-setup-windows.bat
+.\setup-windows.bat
 
 # Then run the application with
-start-windows.bat
+.\start-windows.bat
+
+# Note: On Windows the application will run on port 3000
+# Open your browser to http://localhost:3000
 ```
 
 **For Mac/Linux Users:**
@@ -64,9 +67,10 @@ bash start-unix.sh
 
 # Or run directly with this command
 npm run dev
-```
 
-6. Open your browser to `http://localhost:5000`
+# On Mac/Linux the application will run on port 5000
+# Open your browser to http://localhost:5000
+```
 
 #### Option 2: Clone the Repository
 
@@ -88,10 +92,13 @@ npm install
 **For Windows Users:**
 ```bash
 # First time setup (only needed once)
-setup-windows.bat
+.\setup-windows.bat
 
 # Then run the application with
-start-windows.bat
+.\start-windows.bat
+
+# Note: On Windows the application will run on port 3000
+# Open your browser to http://localhost:3000
 ```
 
 **For Mac/Linux Users:**
@@ -101,9 +108,10 @@ bash start-unix.sh
 
 # Or run directly with this command
 npm run dev
-```
 
-4. Open your browser to `http://localhost:5000`
+# On Mac/Linux the application will run on port 5000
+# Open your browser to http://localhost:5000
+```
 
 ## Project Structure
 
@@ -158,7 +166,14 @@ Then run the production server:
 
 **For Windows Users:**
 ```bash
+# Create a temp-production.ts file using the same approach as in start-windows.bat,
+# but with NODE_ENV=production and using the built files from dist/ folder
 set NODE_ENV=production && node dist/index.js
+
+# Note: If this gives an ENOTSUP error, use this workaround:
+# 1. Copy the temp-server.ts file created during development
+# 2. Change "const port = 3000" to "const port = 5000" 
+# 3. Run with: set NODE_ENV=production && npx tsx temp-server.ts
 ```
 
 **For Mac/Linux Users:**
