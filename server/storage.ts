@@ -120,10 +120,13 @@ export class MemStorage implements IStorage {
       throw new Error(`Seat with ID ${seatId} not found in booking ${bookingId}`);
     }
     
+    // Remove commissionPercent from updates - we don't use it anymore per booking
+    const { commissionPercent, ...filteredUpdates } = updates;
+    
     // Update the seat
     const updatedSeat = {
       ...booking.seats[seatIndex],
-      ...updates
+      ...filteredUpdates
     };
     
     // Update the seat in the booking
