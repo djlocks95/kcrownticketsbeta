@@ -26,7 +26,8 @@ export default function EmployeeManager() {
     email: "",
     phone: "",
     role: "agent",
-    commissionPercent: 10
+    commissionPercent: 10,
+    active: 1
   });
 
   const queryClient = useQueryClient();
@@ -35,13 +36,26 @@ export default function EmployeeManager() {
   // Fetch employees
   const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
     queryKey: ["/api/employees"],
-    queryFn: () => apiRequest<Employee[]>("/api/employees")
+    queryFn: async () => {
+      const response = await apiRequest("/api/employees");
+      return response as Employee[];
+    }
   });
 
   // Fetch monthly profit data
   const { data: profitData, isLoading: isLoadingProfit } = useQuery({
     queryKey: ["/api/profit", currentYear, currentMonth],
-    queryFn: () => apiRequest(`/api/profit/${currentYear}/${currentMonth}`)
+    queryFn: async () => {
+      const response = await apiRequest(`/api/profit/${currentYear}/${currentMonth}`);
+      return response as {
+        month: string;
+        year: number;
+        totalRevenue: number;
+        totalExpenses: number;
+        profit: number;
+        commissions: Record<string, number>;
+      };
+    }
   });
 
   // Create employee mutation
@@ -67,7 +81,8 @@ export default function EmployeeManager() {
         email: "",
         phone: "",
         role: "agent",
-        commissionPercent: 10
+        commissionPercent: 10,
+        active: 1
       });
     },
     onError: (error) => {

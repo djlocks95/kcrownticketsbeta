@@ -45,7 +45,10 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
   // Get employees for dropdown
   const { data: employees = [] } = useQuery({
     queryKey: ["/api/employees"],
-    queryFn: () => apiRequest<Employee[]>("/api/employees")
+    queryFn: async () => {
+      const response = await apiRequest("/api/employees");
+      return response as Employee[];
+    }
   });
 
   const form = useForm<FormValues>({
@@ -87,9 +90,9 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
     };
     
     // If employee is selected, use their information for agent name and commission
-    if (values.employeeId) {
+    if (values.employeeId && values.employeeId !== "none" && Array.isArray(employees)) {
       const selectedEmployee = employees.find(
-        (emp) => emp.id === parseInt(values.employeeId)
+        (emp: any) => emp.id === parseInt(values.employeeId || "0")
       );
       
       if (selectedEmployee) {
@@ -202,7 +205,7 @@ export function SeatBookingForm({ seat, onUpdate, onCancel }: SeatBookingFormPro
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="none">No employee selected</SelectItem>
-                      {employees.map((employee) => (
+                      {Array.isArray(employees) && employees.map((employee: any) => (
                         <SelectItem key={employee.id} value={String(employee.id)}>
                           {employee.name} ({employee.commissionPercent}%)
                         </SelectItem>
